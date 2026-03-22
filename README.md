@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <div align="center">
 
 #  StoreHub: Enterprise Rating Management System
@@ -336,3 +337,7 @@ const storeValidation = [
 ---
 
 *This application demonstrates enterprise-level full-stack development capabilities with modern technologies, security best practices, and scalable architecture patterns suitable for production deployment.*
+=======
+# StoreHub-Enterprise-Rating-Management-System
+StoreHub is an original full-stack web application designed to connect customers with local stores through a rich, interactive rating and review system. I built this project to solve the complexities of multi-role user management while delivering an uncompromising, premium user experience.
+>>>>>>> 931a6824a295df32a475c112108752c0877f5ee8
