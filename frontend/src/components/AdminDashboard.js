@@ -1,6 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { adminAPI, storeAPI } from '../services/api';
 
+const dashboardStyles = `
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    background: #000000;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-in {
+    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+  }
+  .btn-hover {
+    transition: all 0.3s ease;
+  }
+  .btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+  }
+  .input-glow {
+    transition: all 0.3s ease;
+  }
+  .input-glow:focus {
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05) !important;
+    outline: none;
+  }
+  .table-row-hover {
+    transition: background-color 0.2s;
+  }
+  .table-row-hover:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+  }
+  .dashboard-container {
+    min-height: 100vh;
+    background: #000000;
+    color: #ffffff;
+    position: relative;
+  }
+  .bg-animation {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.05), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.04), transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.03), transparent 40%);
+    animation: pulseBg 15s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes pulseBg {
+    0% { transform: scale(1) translate(0px, 0px); }
+    100% { transform: scale(1.1) translate(20px, -20px); }
+  }
+  .glass-card {
+    background: rgba(26, 26, 26, 0.6) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+`;
+
 const AdminDashboard = ({ user, onLogout }) => {
   const [stats, setStats] = useState({});
   const [users, setUsers] = useState([]);
@@ -13,10 +91,14 @@ const AdminDashboard = ({ user, onLogout }) => {
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [selectedStore, setSelectedStore] = useState(null);
   const [storeReviews, setStoreReviews] = useState([]);
+  const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     loadDashboard();
     loadStoreOwners();
+    
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const loadDashboard = async () => {
@@ -88,16 +170,20 @@ const AdminDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const getGreeting = () => {
+    const hour = time.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   const renderDashboard = () => (
     <div>
-      <h2 style={{ color: '#2c3e50', marginBottom: '30px', fontSize: '28px' }}>📊 System Overview</h2>
+      <h2 style={{ color: '#ffffff', marginBottom: '30px', fontSize: '28px' }}>📊 System Overview</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px' }}>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 
+        <div className="card-hover animate-slide-in glass-card" style={{ 
           padding: '30px', 
           borderRadius: '15px', 
-          color: 'white',
-          boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
           transition: 'transform 0.3s'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -109,12 +195,9 @@ const AdminDashboard = ({ user, onLogout }) => {
           </div>
         </div>
         
-        <div style={{ 
-          background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 
+        <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.1s',
           padding: '30px', 
           borderRadius: '15px', 
-          color: 'white',
-          boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
           transition: 'transform 0.3s'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -126,12 +209,9 @@ const AdminDashboard = ({ user, onLogout }) => {
           </div>
         </div>
         
-        <div style={{ 
-          background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', 
+        <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.2s',
           padding: '30px', 
           borderRadius: '15px', 
-          color: 'white',
-          boxShadow: '0 8px 16px rgba(0,0,0,0.1)',
           transition: 'transform 0.3s'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -148,18 +228,19 @@ const AdminDashboard = ({ user, onLogout }) => {
 
   const renderUsers = () => (
     <div>
-      <h2 style={{ color: '#2c3e50', marginBottom: '30px', fontSize: '28px' }}>👥 User Management</h2>
+      <h2 style={{ color: '#ffffff', marginBottom: '30px', fontSize: '28px' }}>👥 User Management</h2>
       
       {/* Add User Form */}
-      <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
-        <h3 style={{ margin: '0 0 20px 0', color: '#2c3e50' }}>➕ Add New User</h3>
+      <div className="card-hover animate-slide-in glass-card" style={{ padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
+        <h3 style={{ margin: '0 0 20px 0', color: '#ffffff' }}>➕ Add New User</h3>
         <form onSubmit={handleAddUser}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
             <input
               placeholder="Full Name (20-60 chars)"
               value={newUser.name}
               onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <input
@@ -167,7 +248,8 @@ const AdminDashboard = ({ user, onLogout }) => {
               placeholder="Email Address"
               value={newUser.email}
               onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <input
@@ -175,20 +257,23 @@ const AdminDashboard = ({ user, onLogout }) => {
               placeholder="Password"
               value={newUser.password}
               onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <input
               placeholder="Address"
               value={newUser.address}
               onChange={(e) => setNewUser({ ...newUser, address: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <select
               value={newUser.role}
               onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
             >
               <option value="normal">Normal User</option>
               <option value="admin">Administrator</option>
@@ -196,7 +281,8 @@ const AdminDashboard = ({ user, onLogout }) => {
             </select>
             <button 
               type="submit"
-              style={{ padding: '12px 20px', backgroundColor: '#27ae60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              className="btn-hover"
+              style={{ padding: '12px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
             >
               ➕ Add User
             </button>
@@ -205,27 +291,30 @@ const AdminDashboard = ({ user, onLogout }) => {
       </div>
 
       {/* Filters */}
-      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
+      <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.1s', padding: '20px', borderRadius: '15px', marginBottom: '30px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '15px', alignItems: 'end' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#7f8c8d', fontSize: '14px' }}>Filter by Name</label>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#aaaaaa', fontSize: '14px' }}>Filter by Name</label>
             <input
               placeholder="Search users by name"
               onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-              style={{ width: '100%', padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
             />
           </div>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#7f8c8d', fontSize: '14px' }}>Filter by Email</label>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#aaaaaa', fontSize: '14px' }}>Filter by Email</label>
             <input
               placeholder="Search users by email"
               onChange={(e) => setFilters({ ...filters, email: e.target.value })}
-              style={{ width: '100%', padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
             />
           </div>
           <button 
             onClick={loadUsers}
-            style={{ padding: '12px 25px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            className="btn-hover"
+              style={{ padding: '12px 25px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             🔍 Search
           </button>
@@ -233,10 +322,10 @@ const AdminDashboard = ({ user, onLogout }) => {
       </div>
 
       {/* Users Table */}
-      <div style={{ backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+      <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.2s', borderRadius: '15px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+            <tr style={{ background: 'rgba(255,255,255,0.05)', color: 'white' }}>
               <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => console.log('Sort by name')}>Name ↕️</th>
               <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => console.log('Sort by email')}>Email ↕️</th>
               <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => console.log('Sort by address')}>Address ↕️</th>
@@ -245,17 +334,17 @@ const AdminDashboard = ({ user, onLogout }) => {
           </thead>
           <tbody>
             {users.map((user, index) => (
-              <tr key={user.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1' }}>{user.name}</td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1', color: '#3498db' }}>{user.email}</td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1' }}>{user.address}</td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1' }}>
+              <tr key={user.id} className="table-row-hover" style={{ backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'transparent' }}>
+                <td style={{ padding: '15px', borderBottom: 'none', color: '#fff' }}>{user.name}</td>
+                <td style={{ padding: '15px', borderBottom: 'none', color: '#aaa' }}>{user.email}</td>
+                <td style={{ padding: '15px', borderBottom: 'none', color: '#fff' }}>{user.address}</td>
+                <td style={{ padding: '15px', borderBottom: 'none' }}>
                   <span style={{
                     padding: '4px 12px',
                     borderRadius: '20px',
                     fontSize: '12px',
                     fontWeight: 'bold',
-                    backgroundColor: user.role === 'admin' ? '#e74c3c' : user.role === 'store_owner' ? '#f39c12' : '#27ae60',
+                    backgroundColor: user.role === 'admin' ? '#ffffff' : user.role === 'store_owner' ? '#888888' : '#444444',
                     color: 'white'
                   }}>
                     {user.role === 'admin' ? '🛠️ Admin' : user.role === 'store_owner' ? '🏪 Owner' : '👤 User'}
@@ -266,7 +355,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           </tbody>
         </table>
         {users.length === 0 && (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#7f8c8d' }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: '#aaaaaa' }}>
             <div style={{ fontSize: '48px', marginBottom: '20px' }}>👥</div>
             <p>No users found. Try adjusting your search criteria.</p>
           </div>
@@ -277,18 +366,19 @@ const AdminDashboard = ({ user, onLogout }) => {
 
   const renderStores = () => (
     <div>
-      <h2 style={{ color: '#2c3e50', marginBottom: '30px', fontSize: '28px' }}>🏪 Store Management</h2>
+      <h2 style={{ color: '#ffffff', marginBottom: '30px', fontSize: '28px' }}>🏪 Store Management</h2>
       
       {/* Add Store Form */}
-      <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
-        <h3 style={{ margin: '0 0 20px 0', color: '#2c3e50' }}>➕ Add New Store</h3>
+      <div className="card-hover animate-slide-in glass-card" style={{ padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
+        <h3 style={{ margin: '0 0 20px 0', color: '#ffffff' }}>➕ Add New Store</h3>
         <form onSubmit={handleAddStore}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px', marginBottom: '20px' }}>
             <input
               placeholder="Store Name (20-60 chars)"
               value={newStore.name}
               onChange={(e) => setNewStore({ ...newStore, name: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <input
@@ -296,20 +386,23 @@ const AdminDashboard = ({ user, onLogout }) => {
               placeholder="Store Email"
               value={newStore.email}
               onChange={(e) => setNewStore({ ...newStore, email: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <input
               placeholder="Store Address"
               value={newStore.address}
               onChange={(e) => setNewStore({ ...newStore, address: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             />
             <select
               value={newStore.owner_id}
               onChange={(e) => setNewStore({ ...newStore, owner_id: e.target.value })}
-              style={{ padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
               required
             >
               <option value="">Select Store Owner</option>
@@ -321,7 +414,8 @@ const AdminDashboard = ({ user, onLogout }) => {
             </select>
             <button 
               type="submit"
-              style={{ padding: '12px 20px', backgroundColor: '#e67e22', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              className="btn-hover"
+              style={{ padding: '12px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
             >
               ➕ Add Store
             </button>
@@ -330,19 +424,21 @@ const AdminDashboard = ({ user, onLogout }) => {
       </div>
 
       {/* Filters */}
-      <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
+      <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.1s', padding: '20px', borderRadius: '15px', marginBottom: '30px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: '15px', alignItems: 'end' }}>
           <div>
-            <label style={{ display: 'block', marginBottom: '5px', color: '#7f8c8d', fontSize: '14px' }}>Filter by Store Name</label>
+            <label style={{ display: 'block', marginBottom: '5px', color: '#aaaaaa', fontSize: '14px' }}>Filter by Store Name</label>
             <input
               placeholder="Search stores by name"
               onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-              style={{ width: '100%', padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '14px' }}
+              className="input-glow"
+              style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '14px' }}
             />
           </div>
           <button 
             onClick={loadStores}
-            style={{ padding: '12px 25px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+            className="btn-hover"
+              style={{ padding: '12px 25px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             🔍 Search
           </button>
@@ -350,10 +446,10 @@ const AdminDashboard = ({ user, onLogout }) => {
       </div>
 
       {/* Stores Table */}
-      <div style={{ backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+      <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.2s', borderRadius: '15px', overflow: 'hidden' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <thead>
-            <tr style={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white' }}>
+            <tr style={{ background: 'rgba(255,255,255,0.05)', color: 'white' }}>
               <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => console.log('Sort by name')}>Store Name ↕️</th>
               <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => console.log('Sort by email')}>Email ↕️</th>
               <th style={{ padding: '15px', textAlign: 'left', fontWeight: 'bold', cursor: 'pointer' }} onClick={() => console.log('Sort by address')}>Address ↕️</th>
@@ -363,22 +459,23 @@ const AdminDashboard = ({ user, onLogout }) => {
           </thead>
           <tbody>
             {stores.map((store, index) => (
-              <tr key={store.id} style={{ backgroundColor: index % 2 === 0 ? '#f8f9fa' : 'white' }}>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1', fontWeight: 'bold' }}>{store.name}</td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1', color: '#3498db' }}>{store.email}</td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1' }}>{store.address}</td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1', textAlign: 'center' }}>
+              <tr key={store.id} className="table-row-hover" style={{ backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'transparent' }}>
+                <td style={{ padding: '15px', borderBottom: 'none', fontWeight: 'bold', color: '#fff' }}>{store.name}</td>
+                <td style={{ padding: '15px', borderBottom: 'none', color: '#aaa' }}>{store.email}</td>
+                <td style={{ padding: '15px', borderBottom: 'none', color: '#fff' }}>{store.address}</td>
+                <td style={{ padding: '15px', borderBottom: 'none', textAlign: 'center', color: '#fff' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
                     <span style={{ fontWeight: 'bold', fontSize: '16px' }}>{parseFloat(store.rating || 0).toFixed(1)}</span>
-                    <span style={{ color: '#f1c40f', fontSize: '16px' }}>★</span>
+                    <span style={{ color: '#ffffff', fontSize: '16px' }}>★</span>
                   </div>
                 </td>
-                <td style={{ padding: '15px', borderBottom: '1px solid #ecf0f1', textAlign: 'center' }}>
+                <td style={{ padding: '15px', borderBottom: 'none', textAlign: 'center' }}>
                   <button
                     onClick={() => viewStoreReviews(store)}
+                    className="btn-hover"
                     style={{
                       padding: '8px 16px',
-                      backgroundColor: '#9b59b6',
+                        backgroundColor: '#444444',
                       color: 'white',
                       border: 'none',
                       borderRadius: '20px',
@@ -395,7 +492,7 @@ const AdminDashboard = ({ user, onLogout }) => {
           </tbody>
         </table>
         {stores.length === 0 && (
-          <div style={{ padding: '40px', textAlign: 'center', color: '#7f8c8d' }}>
+          <div style={{ padding: '40px', textAlign: 'center', color: '#aaaaaa' }}>
             <div style={{ fontSize: '48px', marginBottom: '20px' }}>🏪</div>
             <p>No stores found. Try adjusting your search criteria.</p>
           </div>
@@ -405,17 +502,22 @@ const AdminDashboard = ({ user, onLogout }) => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+    <>
+    <style>{dashboardStyles}</style>
+    <div className="dashboard-container">
+      <div className="bg-animation"></div>
+      <div className="content-wrapper">
       {/* Header */}
-      <div style={{ backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', padding: '20px 0' }}>
+      <div className="glass-card" style={{ padding: '20px 0', border: 'none', borderRadius: '0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ margin: 0, color: '#2c3e50', fontSize: '24px' }}>🛠️ Admin Panel</h1>
-            <p style={{ margin: '5px 0 0 0', color: '#7f8c8d' }}>Welcome back, {user.name}</p>
+            <h1 style={{ margin: 0, color: '#ffffff', fontSize: '24px' }}>🛠️ Admin Panel</h1>
+            <p style={{ margin: '5px 0 0 0', color: '#aaaaaa' }}>{getGreeting()}, {user.name} • {time.toLocaleTimeString()}</p>
           </div>
           <button 
             onClick={onLogout} 
-            style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer' }}
+            className="btn-hover"
+              style={{ padding: '10px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             🚪 Logout
           </button>
@@ -424,14 +526,15 @@ const AdminDashboard = ({ user, onLogout }) => {
 
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '30px 20px' }}>
         {/* Navigation Tabs */}
-        <div style={{ backgroundColor: 'white', borderRadius: '15px', padding: '20px', marginBottom: '30px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+        <div className="animate-slide-in glass-card" style={{ borderRadius: '15px', padding: '20px', marginBottom: '30px' }}>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
               onClick={() => setActiveTab('dashboard')}
+              className={`btn-hover ${activeTab === 'dashboard' ? 'active' : ''}`}
               style={{
                 padding: '12px 24px',
-                backgroundColor: activeTab === 'dashboard' ? '#3498db' : '#ecf0f1',
-                color: activeTab === 'dashboard' ? 'white' : '#7f8c8d',
+                  backgroundColor: activeTab === 'dashboard' ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                color: activeTab === 'dashboard' ? '#000000' : '#aaaaaa',
                 border: 'none',
                 borderRadius: '25px',
                 cursor: 'pointer',
@@ -443,10 +546,11 @@ const AdminDashboard = ({ user, onLogout }) => {
             </button>
             <button
               onClick={() => { setActiveTab('users'); loadUsers(); }}
+              className={`btn-hover ${activeTab === 'users' ? 'active' : ''}`}
               style={{
                 padding: '12px 24px',
-                backgroundColor: activeTab === 'users' ? '#3498db' : '#ecf0f1',
-                color: activeTab === 'users' ? 'white' : '#7f8c8d',
+                  backgroundColor: activeTab === 'users' ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                color: activeTab === 'users' ? '#000000' : '#aaaaaa',
                 border: 'none',
                 borderRadius: '25px',
                 cursor: 'pointer',
@@ -458,10 +562,11 @@ const AdminDashboard = ({ user, onLogout }) => {
             </button>
             <button
               onClick={() => { setActiveTab('stores'); loadStores(); }}
+              className={`btn-hover ${activeTab === 'stores' ? 'active' : ''}`}
               style={{
                 padding: '12px 24px',
-                backgroundColor: activeTab === 'stores' ? '#3498db' : '#ecf0f1',
-                color: activeTab === 'stores' ? 'white' : '#7f8c8d',
+                  backgroundColor: activeTab === 'stores' ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                color: activeTab === 'stores' ? '#000000' : '#aaaaaa',
                 border: 'none',
                 borderRadius: '25px',
                 cursor: 'pointer',
@@ -481,36 +586,36 @@ const AdminDashboard = ({ user, onLogout }) => {
         {/* Reviews Modal */}
         {showReviewsModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+            <div className="animate-slide-in glass-card" style={{ padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ margin: 0, color: '#2c3e50' }}>Reviews for {selectedStore?.name}</h3>
-                <button onClick={() => setShowReviewsModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                <h3 style={{ margin: 0, color: '#ffffff' }}>Reviews for {selectedStore?.name}</h3>
+                <button onClick={() => setShowReviewsModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#fff' }}>×</button>
               </div>
               
               {storeReviews.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   {storeReviews.map((review, index) => (
-                    <div key={index} style={{ padding: '15px', border: '1px solid #ecf0f1', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+                    <div key={index} style={{ padding: '15px', border: 'none', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                         <div>
-                          <strong style={{ color: '#2c3e50' }}>{review.name}</strong>
+                          <strong style={{ color: '#ffffff' }}>{review.name}</strong>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '5px' }}>
                             {[1,2,3,4,5].map(i => (
-                              <span key={i} style={{ color: i <= review.rating ? '#f1c40f' : '#bdc3c7', fontSize: '16px' }}>★</span>
+                                <span key={i} style={{ color: i <= review.rating ? '#ffffff' : '#555555', fontSize: '16px' }}>★</span>
                             ))}
-                            <span style={{ marginLeft: '5px', color: '#7f8c8d', fontSize: '14px' }}>({review.rating}/5)</span>
+                            <span style={{ marginLeft: '5px', color: '#aaaaaa', fontSize: '14px' }}>({review.rating}/5)</span>
                           </div>
                         </div>
-                        <span style={{ color: '#7f8c8d', fontSize: '12px' }}>{new Date(review.created_at).toLocaleDateString()}</span>
+                        <span style={{ color: '#aaaaaa', fontSize: '12px' }}>{new Date(review.created_at).toLocaleDateString()}</span>
                       </div>
                       {review.review && (
-                        <p style={{ margin: 0, color: '#2c3e50', fontStyle: 'italic' }}>"{review.review}"</p>
+                        <p style={{ margin: 0, color: '#dddddd', fontStyle: 'italic' }}>"{review.review}"</p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#7f8c8d' }}>
+                <div style={{ textAlign: 'center', padding: '40px', color: '#aaaaaa' }}>
                   <div style={{ fontSize: '48px', marginBottom: '20px' }}>📝</div>
                   <p>No reviews yet for this store.</p>
                 </div>
@@ -519,7 +624,9 @@ const AdminDashboard = ({ user, onLogout }) => {
           </div>
         )}
       </div>
+      </div>
     </div>
+    </>
   );
 };
 

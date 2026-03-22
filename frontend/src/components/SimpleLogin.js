@@ -1,5 +1,62 @@
 import React, { useState } from 'react';
 
+const styles = `
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    background: #000000;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .fade-in {
+    animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .input-glow {
+    transition: all 0.3s ease;
+  }
+  .input-glow:focus {
+    box-shadow: 0 0 15px rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05) !important;
+  }
+  .btn-hover {
+    transition: all 0.3s ease;
+  }
+  .btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255,255,255,0.15);
+  }
+  .login-container {
+    position: relative;
+  }
+  .bg-animation {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.05), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.04), transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.03), transparent 40%);
+    animation: pulseBg 15s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes pulseBg {
+    0% { transform: scale(1) translate(0px, 0px); }
+    100% { transform: scale(1.1) translate(20px, -20px); }
+  }
+  .glass-panel {
+    background: rgba(26, 26, 26, 0.6) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none !important;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.5) !important;
+  }
+`;
+
 const SimpleLogin = ({ onLogin }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -46,26 +103,15 @@ const SimpleLogin = ({ onLogin }) => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <div style={{
-        background: 'white',
-        padding: '40px',
-        borderRadius: '10px',
-        boxShadow: '0 15px 35px rgba(0,0,0,0.1)',
-        width: '100%',
-        maxWidth: '400px'
-      }}>
+    <>
+      <style>{styles}</style>
+      <div className="login-container" style={{ minHeight: '100vh', background: '#000000', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Arial, sans-serif' }}>
+        <div className="bg-animation"></div>
+        <div className="fade-in glass-panel" style={{ position: 'relative', zIndex: 1, padding: '40px', borderRadius: '15px', width: '100%', maxWidth: '400px' }}>
         <h2 style={{
           textAlign: 'center',
           marginBottom: '30px',
-          color: '#333',
+          color: '#ffffff',
           fontSize: '28px'
         }}>
           {isLogin ? 'Login' : 'Register'}
@@ -80,6 +126,7 @@ const SimpleLogin = ({ onLogin }) => {
                 placeholder="Full Name (20-60 chars)"
                 value={formData.name}
                 onChange={handleChange}
+                className="input-glow"
                 required
                 style={inputStyle}
               />
@@ -89,12 +136,14 @@ const SimpleLogin = ({ onLogin }) => {
                 placeholder="Address (optional)"
                 value={formData.address}
                 onChange={handleChange}
+                className="input-glow"
                 style={inputStyle}
               />
               <select
                 name="role"
                 value={formData.role}
                 onChange={handleChange}
+                className="input-glow"
                 style={inputStyle}
               >
                 <option value="normal">Customer</option>
@@ -109,6 +158,7 @@ const SimpleLogin = ({ onLogin }) => {
             placeholder="Email"
             value={formData.email}
             onChange={handleChange}
+            className="input-glow"
             required
             style={inputStyle}
           />
@@ -119,15 +169,16 @@ const SimpleLogin = ({ onLogin }) => {
             placeholder="Password (8-16 chars, uppercase + special)"
             value={formData.password}
             onChange={handleChange}
+            className="input-glow"
             required
             style={inputStyle}
           />
           
-          <button type="submit" style={{
+          <button type="submit" className="btn-hover" style={{
             width: '100%',
             padding: '12px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            color: 'white',
+            background: '#ffffff',
+            color: '#000000',
             border: 'none',
             borderRadius: '5px',
             fontSize: '16px',
@@ -139,27 +190,28 @@ const SimpleLogin = ({ onLogin }) => {
           </button>
         </form>
         
-        <p style={{ textAlign: 'center', marginTop: '20px', color: '#666' }}>
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
+        <p style={{ textAlign: 'center', marginTop: '20px', color: '#aaaaaa' }}>
+            {isLogin ? "Don't have an account? " : "Already have an account? "}
           <span 
             onClick={() => setIsLogin(!isLogin)}
-            style={{ color: '#667eea', cursor: 'pointer', textDecoration: 'underline' }}
+            style={{ color: '#ffffff', cursor: 'pointer', textDecoration: 'underline', fontWeight: 'bold' }}
           >
             {isLogin ? 'Register' : 'Login'}
           </span>
         </p>
         
         {isLogin && (
-          <div style={{ marginTop: '20px', padding: '15px', background: '#f8f9fa', borderRadius: '5px' }}>
-            <p style={{ margin: '0', fontSize: '14px', color: '#666' }}>
-              <strong>Test Account:</strong><br/>
+          <div style={{ marginTop: '20px', padding: '15px', background: '#2a2a2a', borderRadius: '5px' }}>
+            <p style={{ margin: '0', fontSize: '14px', color: '#cccccc' }}>
+              <strong style={{ color: '#ffffff' }}>Test Account:</strong><br/>
               Email: admin@system.com<br/>
               Password: Admin123!
             </p>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
@@ -167,7 +219,9 @@ const inputStyle = {
   width: '100%',
   padding: '12px',
   margin: '10px 0',
-  border: '2px solid #e1e5e9',
+  border: 'none',
+  background: 'rgba(0, 0, 0, 0.4)',
+  color: '#ffffff',
   borderRadius: '5px',
   fontSize: '16px',
   boxSizing: 'border-box',

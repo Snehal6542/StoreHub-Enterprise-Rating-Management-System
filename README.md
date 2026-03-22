@@ -1,123 +1,106 @@
-# 🏪 Enterprise Store Rating Management System
+<div align="center">
 
-> A sophisticated, production-ready full-stack web application featuring advanced role-based access control, real-time analytics, and enterprise-grade security implementations.
+#  StoreHub: Enterprise Rating Management System
 
-[![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
-[![React](https://img.shields.io/badge/React-18.x-blue.svg)](https://reactjs.org/)
-[![Express.js](https://img.shields.io/badge/Express.js-4.18-lightgrey.svg)](https://expressjs.com/)
-[![SQLite](https://img.shields.io/badge/SQLite-3.x-blue.svg)](https://www.sqlite.org/)
-[![JWT](https://img.shields.io/badge/JWT-Authentication-orange.svg)](https://jwt.io/)
-[![bcrypt](https://img.shields.io/badge/bcrypt-Encryption-red.svg)](https://www.npmjs.com/package/bcrypt)
+**A fully custom, ground-up full-stack platform for managing, exploring, and rating stores.**
 
-## 🚀 Architecture Overview
+[![React](https://img.shields.io/badge/React-18.x-%2361DAFB.svg?logo=react&logoColor=black)](#)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-%23339933.svg?logo=node.js&logoColor=white)](#)
+[![Express.js](https://img.shields.io/badge/Express.js-4.18-%23404d59.svg?logo=express&logoColor=white)](#)
+[![SQLite](https://img.shields.io/badge/SQLite-3.x-%2307405e.svg?logo=sqlite&logoColor=white)](#)
 
-This enterprise-grade application demonstrates advanced full-stack development principles with a microservices-inspired architecture, implementing industry-standard security protocols and scalable design patterns.
+*Beautifully designed. Securely engineered. Entirely homegrown.*
 
-### 🛠️ Technology Stack
+</div>
 
-#### Backend Infrastructure
-- **Runtime Environment**: Node.js 18.x with Express.js framework
-- **Database Engine**: SQLite with optimized indexing strategies
-- **Authentication**: JWT-based stateless authentication with bcrypt encryption
-- **API Architecture**: RESTful API design with middleware-based request processing
-- **Validation Layer**: Express-validator with custom validation middleware
-- **Security**: CORS implementation, SQL injection prevention, input sanitization
+---
 
-#### Frontend Architecture
-- **Framework**: React 18.x with functional components and hooks
-- **State Management**: React Context API with custom hooks
-- **HTTP Client**: Axios with interceptors for token management
-- **UI/UX**: Responsive design with modern CSS3 and component-based architecture
-- **Routing**: React Router with protected route implementations
+##  About The Project
 
-#### Development & Deployment
-- **Process Management**: Nodemon for development hot-reloading
-- **Package Management**: NPM with lock files for dependency consistency
-- **Environment Configuration**: dotenv for secure environment variable management
-- **Database Migration**: Automated schema initialization with sample data seeding
+StoreHub is an original full-stack web application designed to connect customers with local stores through a rich, interactive rating and review system. I built this project to solve the complexities of multi-role user management while delivering an uncompromising, premium user experience.
 
-## 🏗️ System Architecture
+It features a fully custom UI without relying on heavy external CSS frameworks, a robust RESTful API, and a deeply optimized SQLite database.
 
+## ✨ Key Features
+
+### 🎭 Three Distinct Experiences (RBAC)
+- **System Administrator:** Total control over the platform. Monitor system health, manage all users, and oversee store registrations.
+- **Store Owner:** A dedicated portal to register stores, track average ratings, and read customer feedback in real-time.
+- **Customer:** A seamless discovery interface to search for stores, submit detailed reviews, and update profiles.
+
+### 🎨 Premium "Aurora Glass" UI
+I designed the frontend to feel immersive and modern:
+- **Custom Glassmorphism:** Semi-transparent, frosted-glass panels (`backdrop-filter`) over a deep black background.
+- **Aurora Mesh Animation:** A dynamic, CSS-only ambient radial gradient animation that breathes life into the application.
+- **Smart Time-Based Greetings:** The dashboard natively recognizes the user's local time and updates its greetings dynamically.
+- **Zero CSS Libraries:** 100% custom-written, highly optimized CSS-in-JS and inline styles.
+
+### 🔒 Security & Data Integrity
+- **Stateless Authentication:** Secure JWT-based login system with role payload encoding.
+- **Password Protection:** Deep bcrypt hashing with automatic salt generation.
+- **SQL Injection Defense:** Strict use of parameterized queries and prepared statements across the entire backend.
+- **Input Sanitization:** Multi-layered request validation using `express-validator`.
+
+## 🛠️ Technology Stack
+
+**Frontend:**
+* ⚛️ React.js (v18)
+* 📡 Axios (for API communication)
+* 💅 Custom CSS3 Animations & Glassmorphism
+
+**Backend:**
+* 🟢 Node.js & Express.js
+* 🔑 JWT (JSON Web Tokens)
+* 🛡️ bcryptjs
+* 📋 express-validator
+
+**Database:**
+* 🗄️ SQLite3 (Relational mapping, foreign key constraints, cascading deletes)
+
+---
+
+## 📐 System Architecture & Flow
+
+### High-Level Architecture
+```mermaid
+graph TD
+    Client[📱 React Frontend] -->|REST API / Axios| API[⚙️ Express Backend]
+    API -->|JWT Validation| Auth[🔐 Auth Middleware]
+    Auth -->|Parameterized SQL| DB[(🗄️ SQLite Database)]
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   React Client  │────│  Express API    │────│   SQLite DB     │
-│                 │    │                 │    │                 │
-│ • Components    │    │ • Controllers   │    │ • Normalized    │
-│ • State Mgmt    │    │ • Middleware    │    │   Schema        │
-│ • HTTP Client   │    │ • Validators    │    │ • Indexes       │
-│ • Routing       │    │ • Auth Layer    │    │ • Constraints   │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
+
+### Role-Based Access Flow
+```mermaid
+flowchart LR
+    User([👤 User]) --> Login{Login}
+    Login -->|Role: Admin| AdminDash[🛠️ Admin Dashboard]
+    Login -->|Role: Owner| OwnerDash[🏪 Owner Dashboard]
+    Login -->|Role: Normal| UserDash[🛍️ Customer Explorer]
+    
+    AdminDash --> Manage[Manage Users, Roles & Stores]
+    OwnerDash --> Setup[Register Store & View Feedback]
+    UserDash --> Rate[Search Stores & Submit Ratings]
 ```
 
-## 🎯 Advanced Features
+---
 
-### 🔐 Multi-Tier Security Implementation
-- **JWT Authentication**: Stateless token-based authentication with configurable expiration
-- **Password Security**: bcrypt hashing with salt rounds for enhanced security
-- **Role-Based Access Control (RBAC)**: Granular permissions with middleware enforcement
-- **Input Validation**: Comprehensive server-side validation with sanitization
-- **SQL Injection Prevention**: Parameterized queries and prepared statements
-- **CORS Configuration**: Cross-origin resource sharing with security headers
+## � Getting Started
 
-### 📊 Real-Time Analytics Dashboard
-- **Admin Analytics**: Comprehensive system metrics and user engagement statistics
-- **Store Performance**: Advanced rating analytics with trend analysis
-- **User Behavior Tracking**: Registration patterns and activity monitoring
-- **Data Visualization**: Interactive charts and performance indicators
-
-### 🎨 Advanced User Experience
-- **Responsive Design**: Mobile-first approach with cross-device compatibility
-- **Dynamic Search & Filtering**: Real-time search with multiple filter criteria
-- **Sorting Capabilities**: Multi-column sorting with persistence
-- **Form Validation**: Client-side and server-side validation with user feedback
-- **Loading States**: Optimized user experience with loading indicators
-
-### 🏢 Enterprise-Grade Role Management
-
-#### System Administrator Portal
-- **Comprehensive Dashboard**: Real-time system metrics and KPI monitoring
-- **User Management**: Advanced user creation with role assignment
-- **Store Administration**: Complete store lifecycle management
-- **Analytics & Reporting**: Detailed system usage and performance reports
-- **Bulk Operations**: Efficient batch processing for administrative tasks
-
-#### Store Owner Interface
-- **Performance Dashboard**: Advanced analytics with rating trends
-- **Customer Insights**: Detailed customer feedback and rating analysis
-- **Store Management**: Complete store profile and information management
-- **Review Analytics**: Sentiment analysis and customer engagement metrics
-
-#### Customer Experience Platform
-- **Store Discovery**: Advanced search with geolocation and filtering
-- **Rating System**: Sophisticated 5-star rating with review capabilities
-- **Profile Management**: Secure account management with password updates
-- **Personalized Experience**: Customized store recommendations
-
-## 🚀 Quick Start Guide
+Want to run StoreHub locally? It's incredibly easy to set up.
 
 ### Prerequisites
-```bash
-Node.js >= 18.0.0
-npm >= 8.0.0
-```
+- Node.js (v18 or higher)
+- npm (Node Package Manager)
 
 ### Installation & Setup
 
-#### 1. Clone & Install Dependencies
+**1. 📥 Clone the project**
 ```bash
-git clone <repository-url>
+git clone <your-repo-url>
 cd store-rating-system
-
-# Backend setup
-cd backend
-npm install
-
-# Frontend setup
-cd ../frontend
-npm install
 ```
 
-#### 2. Environment Configuration
+**2. ⚙️ Environment Configuration**
 ```bash
 # Backend environment (.env)
 PORT=3001
@@ -126,14 +109,14 @@ SUPABASE_URL=your_supabase_url
 SUPABASE_ANON_KEY=your_supabase_key
 ```
 
-#### 3. Database Initialization
+**3. 🗄️ Database Initialization**
 ```bash
 # Automated database setup with sample data
 cd backend
 node init-db.js
 ```
 
-#### 4. Application Launch
+**4. 🚀 Application Launch**
 ```bash
 # Terminal 1 - Backend Server
 cd backend
@@ -188,6 +171,32 @@ POST   /api/store-owner/store        # Store profile management
 
 ## 🗄️ Database Architecture
 
+### Entity Relationship Diagram
+```mermaid
+erDiagram
+    USERS ||--o{ STORES : owns
+    USERS ||--o{ RATINGS : submits
+    STORES ||--o{ RATINGS : receives
+    
+    USERS {
+        int id PK
+        string name
+        string email
+        string role
+    }
+    STORES {
+        int id PK
+        string name
+        int owner_id FK
+    }
+    RATINGS {
+        int id PK
+        int user_id FK
+        int store_id FK
+        int rating
+    }
+```
+
 ### Optimized Schema Design
 ```sql
 -- Users table with role-based constraints
@@ -237,6 +246,27 @@ CREATE TABLE ratings (
 - **Password Hashing**: bcrypt with salt rounds for enhanced security
 - **Role-Based Access**: Middleware-enforced permission system
 - **Token Refresh**: Automatic token management with interceptors
+
+#### JWT Authentication Lifecycle
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Client as React Frontend
+    participant API as Express Backend
+    participant DB as SQLite Database
+
+    User->>Client: Enters credentials
+    Client->>API: POST /api/auth/login
+    API->>DB: Verify email & bcrypt password
+    DB-->>API: Credentials matched
+    API-->>Client: Returns Signed JWT Token
+    Client->>Client: Stores token in LocalStorage
+    User->>Client: Accesses dashboard
+    Client->>API: GET Request + Bearer Token
+    API->>API: Middleware verifies JWT
+    API-->>Client: 200 OK (Protected Data)
+```
 
 ### Data Protection
 - **Input Sanitization**: Comprehensive validation and sanitization

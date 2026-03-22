@@ -1,6 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import { storeAPI, authAPI } from '../services/api';
 
+const dashboardStyles = `
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    background: #000000;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-in {
+    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+  }
+  .btn-hover {
+    transition: all 0.3s ease;
+  }
+  .btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+  }
+  .input-glow {
+    transition: all 0.3s ease;
+  }
+  .input-glow:focus {
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05) !important;
+    outline: none;
+  }
+  .dashboard-container {
+    min-height: 100vh;
+    background: #000000;
+    color: #ffffff;
+    position: relative;
+  }
+  .bg-animation {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.05), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.04), transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.03), transparent 40%);
+    animation: pulseBg 15s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes pulseBg {
+    0% { transform: scale(1) translate(0px, 0px); }
+    100% { transform: scale(1.1) translate(20px, -20px); }
+  }
+  .glass-card {
+    background: rgba(26, 26, 26, 0.6) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+`;
+
 const UserDashboard = ({ user, onLogout }) => {
   const [stores, setStores] = useState([]);
   const [filters, setFilters] = useState({});
@@ -11,9 +83,12 @@ const UserDashboard = ({ user, onLogout }) => {
   const [ratingData, setRatingData] = useState({ rating: 0, review: '' });
   const [storeReviews, setStoreReviews] = useState([]);
   const [newPassword, setNewPassword] = useState('');
+  const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     loadStores();
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const loadStores = async () => {
@@ -68,25 +143,38 @@ const UserDashboard = ({ user, onLogout }) => {
 
 
 
+  const getGreeting = () => {
+    const hour = time.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   return (
-    <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
+    <>
+    <style>{dashboardStyles}</style>
+    <div className="dashboard-container">
+      <div className="bg-animation"></div>
+      <div className="content-wrapper">
       {/* Header */}
-      <div style={{ backgroundColor: '#fff', boxShadow: '0 2px 4px rgba(0,0,0,0.1)', padding: '20px 0' }}>
+      <div className="glass-card" style={{ padding: '20px 0', border: 'none', borderRadius: '0' }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <h1 style={{ margin: 0, color: '#2c3e50', fontSize: '24px' }}>🏪 StoreHub</h1>
-            <p style={{ margin: '5px 0 0 0', color: '#7f8c8d' }}>Welcome back, {user.name}</p>
+            <h1 style={{ margin: 0, color: '#ffffff', fontSize: '24px' }}>🏪 StoreHub</h1>
+            <p style={{ margin: '5px 0 0 0', color: '#aaaaaa' }}>{getGreeting()}, {user.name} • {time.toLocaleTimeString()}</p>
           </div>
           <div style={{ display: 'flex', gap: '10px' }}>
             <button
+              className="btn-hover"
               onClick={() => setShowPasswordForm(!showPasswordForm)}
-              style={{ padding: '10px 20px', backgroundColor: '#3498db', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer' }}
+                style={{ padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer' }}
             >
               🔒 Change Password
             </button>
             <button
+              className="btn-hover"
               onClick={onLogout}
-              style={{ padding: '10px 20px', backgroundColor: '#e74c3c', color: 'white', border: 'none', borderRadius: '25px', cursor: 'pointer' }}
+                style={{ padding: '10px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '25px', cursor: 'pointer', fontWeight: 'bold' }}
             >
               🚪 Logout
             </button>
@@ -98,20 +186,21 @@ const UserDashboard = ({ user, onLogout }) => {
         {/* Rating Dialog */}
         {showRatingDialog && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '500px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-              <h3 style={{ marginTop: 0, color: '#2c3e50', marginBottom: '20px' }}>Rate {selectedStore?.name}</h3>
+            <div className="animate-slide-in glass-card" style={{ padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '500px' }}>
+              <h3 style={{ marginTop: 0, color: '#ffffff', marginBottom: '20px' }}>Rate {selectedStore?.name}</h3>
               
               <div style={{ marginBottom: '20px' }}>
-                <p style={{ margin: '0 0 10px 0', color: '#7f8c8d' }}>Your Rating:</p>
+                <p style={{ margin: '0 0 10px 0', color: '#aaaaaa' }}>Your Rating:</p>
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '20px' }}>
                   {[1, 2, 3, 4, 5].map(rating => (
                     <button
                       key={rating}
+                      className="btn-hover"
                       onClick={() => setRatingData({ ...ratingData, rating })}
                       style={{
                         padding: '10px 15px',
-                        backgroundColor: ratingData.rating === rating ? '#f1c40f' : '#ecf0f1',
-                        color: ratingData.rating === rating ? 'white' : '#7f8c8d',
+                        backgroundColor: ratingData.rating === rating ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                        color: ratingData.rating === rating ? '#000000' : '#aaaaaa',
                         border: 'none',
                         borderRadius: '25px',
                         cursor: 'pointer',
@@ -127,8 +216,9 @@ const UserDashboard = ({ user, onLogout }) => {
               </div>
               
               <div style={{ marginBottom: '25px' }}>
-                <p style={{ margin: '0 0 10px 0', color: '#7f8c8d' }}>Write a review (optional):</p>
+                <p style={{ margin: '0 0 10px 0', color: '#aaaaaa' }}>Write a review (optional):</p>
                 <textarea
+                  className="input-glow"
                   placeholder="Share your experience with this store..."
                   value={ratingData.review}
                   onChange={(e) => setRatingData({ ...ratingData, review: e.target.value })}
@@ -136,7 +226,9 @@ const UserDashboard = ({ user, onLogout }) => {
                     width: '100%', 
                     height: '100px', 
                     padding: '12px', 
-                    border: '2px solid #ecf0f1', 
+                    border: 'none', 
+                    backgroundColor: 'rgba(0,0,0,0.4)',
+                    color: '#ffffff',
                     borderRadius: '8px', 
                     fontSize: '14px',
                     resize: 'vertical',
@@ -148,17 +240,19 @@ const UserDashboard = ({ user, onLogout }) => {
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button
                   onClick={() => setShowRatingDialog(false)}
-                  style={{ padding: '12px 20px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                  className="btn-hover"
+                  style={{ padding: '12px 20px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
                 >
                   Cancel
                 </button>
                 <button
+                  className="btn-hover"
                   onClick={submitDetailedRating}
                   disabled={ratingData.rating === 0}
                   style={{ 
-                    padding: '12px 20px', 
-                    backgroundColor: ratingData.rating > 0 ? '#27ae60' : '#bdc3c7', 
-                    color: 'white', 
+                    padding: '12px 20px',
+                    backgroundColor: ratingData.rating > 0 ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                    color: ratingData.rating > 0 ? '#000000' : '#777777', 
                     border: 'none', 
                     borderRadius: '8px', 
                     cursor: ratingData.rating > 0 ? 'pointer' : 'not-allowed' 
@@ -174,36 +268,36 @@ const UserDashboard = ({ user, onLogout }) => {
         {/* Reviews Modal */}
         {showReviewsModal && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
+            <div className="animate-slide-in glass-card" style={{ padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '600px', maxHeight: '80vh', overflow: 'auto' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                <h3 style={{ margin: 0, color: '#2c3e50' }}>Reviews for {selectedStore?.name}</h3>
-                <button onClick={() => setShowReviewsModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer' }}>×</button>
+                <h3 style={{ margin: 0, color: '#ffffff' }}>Reviews for {selectedStore?.name}</h3>
+                <button onClick={() => setShowReviewsModal(false)} style={{ background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', color: '#ffffff' }}>×</button>
               </div>
               
               {storeReviews.length > 0 ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   {storeReviews.map((review, index) => (
-                    <div key={index} style={{ padding: '15px', border: '1px solid #ecf0f1', borderRadius: '8px', backgroundColor: '#f8f9fa' }}>
+                    <div key={index} style={{ padding: '15px', border: 'none', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)' }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                         <div>
-                          <strong style={{ color: '#2c3e50' }}>{review.name}</strong>
+                          <strong style={{ color: '#ffffff' }}>{review.name}</strong>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginTop: '5px' }}>
                             {[1,2,3,4,5].map(i => (
-                              <span key={i} style={{ color: i <= review.rating ? '#f1c40f' : '#bdc3c7', fontSize: '16px' }}>★</span>
+                                <span key={i} style={{ color: i <= review.rating ? '#ffffff' : '#555555', fontSize: '16px' }}>★</span>
                             ))}
-                            <span style={{ marginLeft: '5px', color: '#7f8c8d', fontSize: '14px' }}>({review.rating}/5)</span>
+                            <span style={{ marginLeft: '5px', color: '#aaaaaa', fontSize: '14px' }}>({review.rating}/5)</span>
                           </div>
                         </div>
-                        <span style={{ color: '#7f8c8d', fontSize: '12px' }}>{new Date(review.created_at).toLocaleDateString()}</span>
+                        <span style={{ color: '#aaaaaa', fontSize: '12px' }}>{new Date(review.created_at).toLocaleDateString()}</span>
                       </div>
                       {review.review && (
-                        <p style={{ margin: 0, color: '#2c3e50', fontStyle: 'italic' }}>"{review.review}"</p>
+                        <p style={{ margin: 0, color: '#dddddd', fontStyle: 'italic' }}>"{review.review}"</p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: '40px', color: '#7f8c8d' }}>
+                <div style={{ textAlign: 'center', padding: '40px', color: '#aaaaaa' }}>
                   <div style={{ fontSize: '48px', marginBottom: '20px' }}>📝</div>
                   <p>No reviews yet for this store.</p>
                 </div>
@@ -215,28 +309,31 @@ const UserDashboard = ({ user, onLogout }) => {
         {/* Password Form Modal */}
         {showPasswordForm && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '400px', boxShadow: '0 10px 30px rgba(0,0,0,0.3)' }}>
-              <h3 style={{ marginTop: 0, color: '#2c3e50' }}>Change Password</h3>
+            <div className="animate-slide-in glass-card" style={{ padding: '30px', borderRadius: '15px', width: '90%', maxWidth: '400px' }}>
+              <h3 style={{ marginTop: 0, color: '#ffffff' }}>Change Password</h3>
               <form onSubmit={handlePasswordUpdate}>
                 <input
                   type="password"
                   placeholder="New Password (8-16 chars, uppercase + special)"
                   value={newPassword}
+                  className="input-glow"
                   onChange={(e) => setNewPassword(e.target.value)}
-                  style={{ width: '100%', padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', marginBottom: '20px', fontSize: '16px' }}
+                  style={{ width: '100%', padding: '12px', border: '1px solid #444', backgroundColor: '#2a2a2a', color: '#fff', borderRadius: '8px', marginBottom: '20px', fontSize: '16px' }}
                   required
                 />
                 <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                   <button
                     type="button"
+                    className="btn-hover"
                     onClick={() => setShowPasswordForm(false)}
-                    style={{ padding: '10px 20px', backgroundColor: '#95a5a6', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                    style={{ padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    style={{ padding: '10px 20px', backgroundColor: '#27ae60', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                    className="btn-hover"
+                    style={{ padding: '10px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
                   >
                     Update
                   </button>
@@ -247,28 +344,31 @@ const UserDashboard = ({ user, onLogout }) => {
         )}
 
         {/* Search Section */}
-        <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', marginBottom: '30px' }}>
-          <h2 style={{ margin: '0 0 20px 0', color: '#2c3e50', fontSize: '20px' }}>🔍 Find Stores</h2>
+        <div className="card-hover animate-slide-in glass-card" style={{ padding: '25px', borderRadius: '15px', marginBottom: '30px' }}>
+          <h2 style={{ margin: '0 0 20px 0', color: '#ffffff', fontSize: '20px' }}>🔍 Find Stores</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto', gap: '15px', alignItems: 'end' }}>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#7f8c8d', fontSize: '14px' }}>Store Name</label>
+              <label style={{ display: 'block', marginBottom: '5px', color: '#aaaaaa', fontSize: '14px' }}>Store Name</label>
               <input
                 placeholder="Search by store name"
                 onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-                style={{ width: '100%', padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '16px' }}
+                className="input-glow"
+                style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '16px' }}
               />
             </div>
             <div>
-              <label style={{ display: 'block', marginBottom: '5px', color: '#7f8c8d', fontSize: '14px' }}>Location</label>
+              <label style={{ display: 'block', marginBottom: '5px', color: '#aaaaaa', fontSize: '14px' }}>Location</label>
               <input
                 placeholder="Search by address"
                 onChange={(e) => setFilters({ ...filters, address: e.target.value })}
-                style={{ width: '100%', padding: '12px', border: '2px solid #ecf0f1', borderRadius: '8px', fontSize: '16px' }}
+                className="input-glow"
+                style={{ width: '100%', padding: '12px', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '8px', fontSize: '16px' }}
               />
             </div>
             <button
               onClick={loadStores}
-              style={{ padding: '12px 25px', backgroundColor: '#e67e22', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
+              className="btn-hover"
+                style={{ padding: '12px 25px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '16px', fontWeight: 'bold' }}
             >
               🔍 Search
             </button>
@@ -278,15 +378,15 @@ const UserDashboard = ({ user, onLogout }) => {
         {/* Stores Grid */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '25px' }}>
           {stores.map(store => (
-            <div key={store.id} style={{ backgroundColor: 'white', borderRadius: '15px', overflow: 'hidden', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', transition: 'transform 0.2s, box-shadow 0.2s' }}>
+            <div key={store.id} className="card-hover animate-slide-in glass-card" style={{ borderRadius: '15px', overflow: 'hidden' }}>
               {/* Store Header */}
-              <div style={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', padding: '20px', color: 'white' }}>
+              <div style={{ background: 'rgba(255,255,255,0.05)', padding: '20px', color: 'white' }}>
                 <h3 style={{ margin: '0 0 10px 0', fontSize: '18px' }}>{store.name}</h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '24px', fontWeight: 'bold' }}>{parseFloat(store.overall_rating || 0).toFixed(1)}</span>
                   <div style={{ display: 'flex' }}>
                     {[1,2,3,4,5].map(i => (
-                      <span key={i} style={{ color: i <= Math.round(store.overall_rating) ? '#f1c40f' : '#bdc3c7', fontSize: '18px' }}>★</span>
+                      <span key={i} style={{ color: i <= Math.round(store.overall_rating) ? '#ffffff' : '#666666', fontSize: '18px' }}>★</span>
                     ))}
                   </div>
                   <span style={{ fontSize: '14px', opacity: 0.9 }}>({store.total_ratings || 0} reviews)</span>
@@ -296,17 +396,17 @@ const UserDashboard = ({ user, onLogout }) => {
               {/* Store Content */}
               <div style={{ padding: '20px' }}>
                 <div style={{ marginBottom: '15px' }}>
-                  <p style={{ margin: '0 0 10px 0', color: '#7f8c8d', fontSize: '14px' }}>📍 Address</p>
-                  <p style={{ margin: 0, color: '#2c3e50', lineHeight: '1.4' }}>{store.address}</p>
+                  <p style={{ margin: '0 0 10px 0', color: '#aaaaaa', fontSize: '14px' }}>📍 Address</p>
+                  <p style={{ margin: 0, color: '#ffffff', lineHeight: '1.4' }}>{store.address}</p>
                 </div>
 
                 <div style={{ marginBottom: '15px' }}>
-                  <p style={{ margin: '0 0 10px 0', color: '#7f8c8d', fontSize: '14px' }}>📧 Contact</p>
-                  <p style={{ margin: 0, color: '#3498db' }}>{store.email}</p>
+                  <p style={{ margin: '0 0 10px 0', color: '#aaaaaa', fontSize: '14px' }}>📧 Contact</p>
+                  <p style={{ margin: 0, color: '#cccccc' }}>{store.email}</p>
                 </div>
 
                 {/* Map Preview */}
-                <div style={{ height: '150px', backgroundColor: '#ecf0f1', borderRadius: '8px', marginBottom: '15px', overflow: 'hidden' }}>
+                <div style={{ height: '150px', backgroundColor: 'rgba(0,0,0,0.4)', borderRadius: '8px', marginBottom: '15px', overflow: 'hidden' }}>
                   <iframe
                     src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.1!2d-74.0060!3d40.7128!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQyJzQ2LjEiTiA3NMKwMDAnMjEuNiJX!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus`}
                     width="100%"
@@ -320,16 +420,16 @@ const UserDashboard = ({ user, onLogout }) => {
 
                 {/* Your Rating */}
                 {store.user_rating && (
-                  <div style={{ backgroundColor: '#e8f5e8', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
-                    <p style={{ margin: '0 0 8px 0', color: '#27ae60', fontSize: '14px', fontWeight: 'bold' }}>✅ Your Rating</p>
+                  <div style={{ backgroundColor: 'rgba(46, 204, 113, 0.1)', border: 'none', padding: '15px', borderRadius: '8px', marginBottom: '15px' }}>
+                  <p style={{ margin: '0 0 8px 0', color: '#ffffff', fontSize: '14px', fontWeight: 'bold' }}>✅ Your Rating</p>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginBottom: '8px' }}>
                       {[1,2,3,4,5].map(i => (
-                        <span key={i} style={{ color: i <= store.user_rating ? '#f1c40f' : '#bdc3c7', fontSize: '16px' }}>★</span>
+                      <span key={i} style={{ color: i <= store.user_rating ? '#ffffff' : '#555555', fontSize: '16px' }}>★</span>
                       ))}
-                      <span style={{ color: '#27ae60', fontWeight: 'bold' }}>({store.user_rating}/5)</span>
+                    <span style={{ color: '#ffffff', fontWeight: 'bold' }}>({store.user_rating}/5)</span>
                     </div>
                     {store.user_review && (
-                      <p style={{ margin: 0, color: '#2c3e50', fontSize: '13px', fontStyle: 'italic' }}>
+                      <p style={{ margin: 0, color: '#cccccc', fontSize: '13px', fontStyle: 'italic' }}>
                         "{store.user_review}"
                       </p>
                     )}
@@ -339,16 +439,17 @@ const UserDashboard = ({ user, onLogout }) => {
                 {/* Action Buttons */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                   <div>
-                    <p style={{ margin: '0 0 10px 0', color: '#2c3e50', fontSize: '14px', fontWeight: 'bold' }}>Rate this store:</p>
+                    <p style={{ margin: '0 0 10px 0', color: '#ffffff', fontSize: '14px', fontWeight: 'bold' }}>Rate this store:</p>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
                       {[1, 2, 3, 4, 5].map(rating => (
                         <button
                           key={rating}
                           onClick={() => handleRatingClick(store, rating)}
+                          className="btn-hover"
                           style={{
-                            padding: '8px 12px',
-                            backgroundColor: store.user_rating === rating ? '#f1c40f' : '#ecf0f1',
-                            color: store.user_rating === rating ? 'white' : '#7f8c8d',
+                            padding: '8px 14px',
+                            backgroundColor: store.user_rating === rating ? '#ffffff' : 'rgba(255,255,255,0.1)',
+                            color: store.user_rating === rating ? '#000000' : '#aaaaaa',
                             border: 'none',
                             borderRadius: '20px',
                             cursor: 'pointer',
@@ -365,9 +466,10 @@ const UserDashboard = ({ user, onLogout }) => {
                   
                   <button
                     onClick={() => viewStoreReviews(store)}
+                    className="btn-hover"
                     style={{
-                      padding: '10px 20px',
-                      backgroundColor: '#9b59b6',
+                      padding: '12px 20px',
+                      backgroundColor: 'rgba(255,255,255,0.1)',
                       color: 'white',
                       border: 'none',
                       borderRadius: '25px',
@@ -385,14 +487,16 @@ const UserDashboard = ({ user, onLogout }) => {
         </div>
 
         {stores.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 20px', backgroundColor: 'white', borderRadius: '15px', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+          <div className="animate-slide-in glass-card" style={{ textAlign: 'center', padding: '60px 20px', borderRadius: '15px' }}>
             <div style={{ fontSize: '48px', marginBottom: '20px' }}>🏪</div>
-            <h3 style={{ color: '#7f8c8d', marginBottom: '10px' }}>No stores found</h3>
-            <p style={{ color: '#bdc3c7' }}>Try adjusting your search criteria or check back later for new stores.</p>
+            <h3 style={{ color: '#aaaaaa', marginBottom: '10px' }}>No stores found</h3>
+            <p style={{ color: '#777777' }}>Try adjusting your search criteria or check back later for new stores.</p>
           </div>
         )}
       </div>
     </div>
+    </div>
+    </>
   );
 };
 

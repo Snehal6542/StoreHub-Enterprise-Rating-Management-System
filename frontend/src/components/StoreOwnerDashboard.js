@@ -1,6 +1,84 @@
 import React, { useState, useEffect } from 'react';
 import { storeOwnerAPI, authAPI } from '../services/api';
 
+const dashboardStyles = `
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  html, body {
+    background: #000000;
+  }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-slide-in {
+    animation: slideIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+  .card-hover {
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6) !important;
+  }
+  .btn-hover {
+    transition: all 0.3s ease;
+  }
+  .btn-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+  }
+  .input-glow {
+    transition: all 0.3s ease;
+  }
+  .input-glow:focus {
+    box-shadow: 0 0 10px rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05) !important;
+    outline: none;
+  }
+  .dashboard-container {
+    min-height: 100vh;
+    background: #000000;
+    color: #ffffff;
+    position: relative;
+  }
+  .bg-animation {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 0;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(255, 255, 255, 0.05), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.04), transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(255, 255, 255, 0.03), transparent 40%);
+    animation: pulseBg 15s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes pulseBg {
+    0% { transform: scale(1) translate(0px, 0px); }
+    100% { transform: scale(1.1) translate(20px, -20px); }
+  }
+  .glass-card {
+    background: rgba(26, 26, 26, 0.6) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: none !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+  .table-row-hover {
+    transition: background-color 0.2s;
+  }
+  .table-row-hover:hover {
+    background-color: #2a2a2a !important;
+  }
+`;
+
 const StoreOwnerDashboard = ({ user, onLogout }) => {
   const [dashboardData, setDashboardData] = useState({ hasStore: false, averageRating: 0, ratings: [] });
   const [showPasswordForm, setShowPasswordForm] = useState(false);
@@ -8,9 +86,12 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
   const [newPassword, setNewPassword] = useState('');
   const [storeData, setStoreData] = useState({ name: '', email: '', address: '' });
   const [mapCenter, setMapCenter] = useState({ lat: 40.7128, lng: -74.0060 });
+  const [time, setTime] = useState(new Date());
 
   useEffect(() => {
     loadDashboard();
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
   const loadDashboard = async () => {
@@ -60,20 +141,32 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
     }
   };
 
+  const getGreeting = () => {
+    const hour = time.getHours();
+    if (hour < 12) return 'Good Morning';
+    if (hour < 18) return 'Good Afternoon';
+    return 'Good Evening';
+  };
+
   if (!dashboardData.hasStore) {
     return (
-      <div style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2>Welcome {user.name} - Store Owner Dashboard</h2>
-          <button onClick={onLogout} style={{ padding: '10px', backgroundColor: '#dc3545', color: 'white', border: 'none' }}>Logout</button>
+      <>
+      <style>{dashboardStyles}</style>
+      <div className="dashboard-container">
+        <div className="bg-animation"></div>
+        <div className="content-wrapper" style={{ padding: '20px' }}>
+        <div className="glass-card" style={{ padding: '20px', borderRadius: '15px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+          <h2 style={{ margin: 0 }}>{getGreeting()}, {user.name} - Store Owner Setup</h2>
+          <button onClick={onLogout} className="btn-hover" style={{ padding: '10px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}>Logout</button>
         </div>
         
-        <div style={{ textAlign: 'center', padding: '50px' }}>
+        <div className="glass-card" style={{ textAlign: 'center', padding: '50px', borderRadius: '15px', maxWidth: '600px', margin: '0 auto' }}>
           <h3>No Store Registered</h3>
           <p>You need to register your store first to access the dashboard.</p>
           <button
             onClick={() => setShowStoreForm(true)}
-            style={{ padding: '15px 30px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px', fontSize: '16px' }}
+            className="btn-hover animate-slide-in"
+            style={{ padding: '15px 30px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '5px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             Register My Store
           </button>
@@ -81,14 +174,15 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
 
         {showStoreForm && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'white', padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '600px' }}>
+            <div className="animate-slide-in glass-card" style={{ padding: '30px', borderRadius: '10px', width: '90%', maxWidth: '600px' }}>
               <h3>Register Your Store</h3>
               <form onSubmit={handleCreateStore}>
                 <input
                   placeholder="Store Name (20-60 characters)"
                   value={storeData.name}
                   onChange={(e) => setStoreData({ ...storeData, name: e.target.value })}
-                  style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ddd', borderRadius: '5px' }}
+                  className="input-glow"
+                  style={{ width: '100%', padding: '12px', margin: '10px 0', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '5px' }}
                   required
                 />
                 <input
@@ -96,7 +190,8 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
                   placeholder="Store Email"
                   value={storeData.email}
                   onChange={(e) => setStoreData({ ...storeData, email: e.target.value })}
-                  style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ddd', borderRadius: '5px' }}
+                  className="input-glow"
+                  style={{ width: '100%', padding: '12px', margin: '10px 0', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '5px' }}
                   required
                 />
                 <input
@@ -106,11 +201,12 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
                     setStoreData({ ...storeData, address: e.target.value });
                     if (e.target.value.length > 10) geocodeAddress(e.target.value);
                   }}
-                  style={{ width: '100%', padding: '10px', margin: '10px 0', border: '1px solid #ddd', borderRadius: '5px' }}
+                  className="input-glow"
+                  style={{ width: '100%', padding: '12px', margin: '10px 0', border: 'none', backgroundColor: 'rgba(0,0,0,0.4)', color: '#fff', borderRadius: '5px' }}
                   required
                 />
                 
-                <div style={{ height: '300px', margin: '20px 0', border: '1px solid #ddd', borderRadius: '5px', overflow: 'hidden' }}>
+                <div style={{ height: '300px', margin: '20px 0', borderRadius: '5px', overflow: 'hidden', backgroundColor: 'rgba(0,0,0,0.4)' }}>
                   <iframe
                     src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.1!2d${mapCenter.lng}!3d${mapCenter.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQyJzQ2LjEiTiA3NMKwMDAnMjEuNiJX!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus`}
                     width="100%"
@@ -127,13 +223,15 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
                   <button
                     type="button"
                     onClick={() => setShowStoreForm(false)}
-                    style={{ padding: '10px 20px', backgroundColor: '#6c757d', color: 'white', border: 'none', borderRadius: '5px' }}
+                    className="btn-hover"
+                    style={{ padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    style={{ padding: '10px 20px', backgroundColor: '#007bff', color: 'white', border: 'none', borderRadius: '5px' }}
+                    className="btn-hover"
+                    style={{ padding: '10px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
                   >
                     Register Store
                   </button>
@@ -143,23 +241,31 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
           </div>
         )}
       </div>
+      </div>
+      </>
     );
   }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-        <h2>Welcome {user.name} - {dashboardData.store?.name}</h2>
+    <>
+    <style>{dashboardStyles}</style>
+    <div className="dashboard-container">
+      <div className="bg-animation"></div>
+      <div className="content-wrapper" style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <div className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', padding: '20px', borderRadius: '15px' }}>
+        <h2 style={{ margin: 0 }}>{getGreeting()}, {user.name} - {dashboardData.store?.name}</h2>
         <div>
           <button
             onClick={() => setShowPasswordForm(!showPasswordForm)}
-            style={{ padding: '10px', backgroundColor: '#28a745', color: 'white', border: 'none', marginRight: '10px' }}
+            className="btn-hover"
+            style={{ padding: '10px 20px', backgroundColor: 'rgba(255,255,255,0.1)', color: '#ffffff', border: 'none', marginRight: '10px', borderRadius: '5px', cursor: 'pointer' }}
           >
             Change Password
           </button>
           <button
             onClick={onLogout}
-            style={{ padding: '10px', backgroundColor: '#dc3545', color: 'white', border: 'none' }}
+            className="btn-hover"
+            style={{ padding: '10px 20px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
           >
             Logout
           </button>
@@ -167,23 +273,25 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
       </div>
 
       {showPasswordForm && (
-        <div style={{ marginBottom: '20px', padding: '15px', border: '1px solid #ddd', borderRadius: '5px' }}>
+        <div className="animate-slide-in glass-card" style={{ marginBottom: '30px', padding: '20px', borderRadius: '10px' }}>
           <form onSubmit={handlePasswordUpdate}>
             <input
               type="password"
               placeholder="New Password (8-16 chars, uppercase + special)"
               value={newPassword}
+              className="input-glow"
               onChange={(e) => setNewPassword(e.target.value)}
-              style={{ padding: '8px', marginRight: '10px', width: '300px' }}
+              style={{ padding: '12px', marginRight: '10px', width: '300px', backgroundColor: 'rgba(0,0,0,0.4)', border: 'none', color: '#fff', borderRadius: '5px' }}
               required
             />
-            <button type="submit" style={{ padding: '8px 15px', backgroundColor: '#007bff', color: 'white', border: 'none' }}>
+            <button type="submit" className="btn-hover" style={{ padding: '9px 15px', backgroundColor: '#ffffff', color: '#000000', border: 'none', borderRadius: '3px', cursor: 'pointer', fontWeight: 'bold' }}>
               Update
             </button>
             <button
               type="button"
               onClick={() => setShowPasswordForm(false)}
-              style={{ padding: '8px 15px', backgroundColor: '#6c757d', color: 'white', border: 'none', marginLeft: '10px' }}
+              className="btn-hover"
+              style={{ padding: '9px 15px', backgroundColor: 'rgba(255,255,255,0.1)', color: 'white', border: 'none', marginLeft: '10px', borderRadius: '3px', cursor: 'pointer' }}
             >
               Cancel
             </button>
@@ -192,16 +300,16 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '30px' }}>
-        <div style={{ padding: '20px', border: '1px solid #ddd', borderRadius: '5px', backgroundColor: '#f8f9fa' }}>
+        <div className="card-hover animate-slide-in glass-card" style={{ padding: '25px', borderRadius: '15px' }}>
           <h3>Store Performance</h3>
-          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#007bff' }}>
+          <p style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff' }}>
             Average Rating: {dashboardData.averageRating}/5
           </p>
-          <p>Total Reviews: {dashboardData.ratings.length}</p>
-          <p><strong>Address:</strong> {dashboardData.store?.address}</p>
+          <p style={{ color: '#aaaaaa' }}>Total Reviews: {dashboardData.ratings.length}</p>
+          <p style={{ color: '#aaaaaa' }}><strong style={{ color: '#ffffff' }}>Address:</strong> {dashboardData.store?.address}</p>
         </div>
         
-        <div style={{ border: '1px solid #ddd', borderRadius: '5px', overflow: 'hidden' }}>
+        <div className="card-hover animate-slide-in glass-card" style={{ animationDelay: '0.1s', borderRadius: '15px', overflow: 'hidden', padding: 0 }}>
           <iframe
             src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3024.1!2d-74.0060!3d40.7128!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDDCsDQyJzQ2LjEiTiA3NMKwMDAnMjEuNiJX!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus`}
             width="100%"
@@ -215,29 +323,29 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
         </div>
       </div>
 
-      <div>
-        <h3>Customer Reviews</h3>
+      <div className="glass-card" style={{ padding: '25px', borderRadius: '15px' }}>
+        <h3 className="animate-slide-in">Customer Reviews</h3>
         {dashboardData.ratings.length > 0 ? (
           <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '15px' }}>
             <thead>
-              <tr style={{ backgroundColor: '#f5f5f5' }}>
-                <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Customer Name</th>
-                <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Email</th>
-                <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>Rating</th>
-                <th style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'left' }}>Date</th>
+              <tr style={{ backgroundColor: 'rgba(255,255,255,0.05)' }}>
+                <th style={{ borderBottom: 'none', padding: '12px', textAlign: 'left' }}>Customer Name</th>
+                <th style={{ borderBottom: 'none', padding: '12px', textAlign: 'left' }}>Email</th>
+                <th style={{ borderBottom: 'none', padding: '12px', textAlign: 'center' }}>Rating</th>
+                <th style={{ borderBottom: 'none', padding: '12px', textAlign: 'left' }}>Date</th>
               </tr>
             </thead>
             <tbody>
               {dashboardData.ratings.map((rating, index) => (
-                <tr key={index}>
-                  <td style={{ border: '1px solid #ddd', padding: '12px' }}>{rating.name}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '12px' }}>{rating.email}</td>
-                  <td style={{ border: '1px solid #ddd', padding: '12px', textAlign: 'center' }}>
-                    <span style={{ color: '#ffc107', fontWeight: 'bold' }}>
+                <tr key={index} className="table-row-hover animate-slide-in" style={{ animationDelay: `${index * 0.05}s`, backgroundColor: index % 2 === 0 ? 'rgba(0,0,0,0.2)' : 'transparent' }}>
+                  <td style={{ borderBottom: 'none', padding: '12px' }}>{rating.name}</td>
+                  <td style={{ borderBottom: 'none', padding: '12px', color: '#aaa' }}>{rating.email}</td>
+                  <td style={{ borderBottom: 'none', padding: '12px', textAlign: 'center' }}>
+                    <span style={{ color: '#ffffff', fontWeight: 'bold' }}>
                       {rating.rating}★
                     </span>
                   </td>
-                  <td style={{ border: '1px solid #ddd', padding: '12px' }}>
+                  <td style={{ borderBottom: 'none', padding: '12px', color: '#aaa' }}>
                     {new Date(rating.created_at).toLocaleDateString()}
                   </td>
                 </tr>
@@ -245,12 +353,14 @@ const StoreOwnerDashboard = ({ user, onLogout }) => {
             </tbody>
           </table>
         ) : (
-          <p style={{ textAlign: 'center', marginTop: '30px', color: '#666' }}>
+          <p style={{ textAlign: 'center', marginTop: '30px', color: '#aaaaaa' }}>
             No reviews yet. Encourage customers to rate your store!
           </p>
         )}
       </div>
     </div>
+    </div>
+    </>
   );
 };
 
