@@ -1,4 +1,4 @@
-const { queryOne, insert } = require('../config/database');
+const { query, queryOne, insert } = require('../config/database');
 
 const getDashboard = async (req, res) => {
   try {
@@ -14,8 +14,8 @@ const getDashboard = async (req, res) => {
       [storeId]
     );
 
-    const ratingsResult = await queryOne(`
-      SELECT u.name, u.email, r.rating, r.created_at
+    const ratingsResult = await query(`
+      SELECT u.name, u.email, r.rating, r.review, r.created_at
       FROM ratings r
       JOIN users u ON r.user_id = u.id
       WHERE r.store_id = ?
@@ -26,7 +26,7 @@ const getDashboard = async (req, res) => {
       hasStore: true,
       store: storeResult.data,
       averageRating: parseFloat(avgRatingResult.data?.average_rating || 0).toFixed(2),
-      ratings: ratingsResult.data ? [ratingsResult.data] : []
+      ratings: ratingsResult.rows || []
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error' });

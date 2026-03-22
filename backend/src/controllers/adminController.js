@@ -79,7 +79,25 @@ const addStore = async (req, res) => {
 
 const getUsers = async (req, res) => {
   try {
-    const result = await query('SELECT id, name, email, address, role FROM users');
+    const { name, email } = req.query;
+    let sql = 'SELECT id, name, email, address, role FROM users';
+    const params = [];
+    const conditions = [];
+
+    if (name) {
+      conditions.push('name LIKE ?');
+      params.push(`%${name}%`);
+    }
+    if (email) {
+      conditions.push('email LIKE ?');
+      params.push(`%${email}%`);
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+
+    const result = await query(sql, params);
     res.json(result.rows || []);
   } catch (error) {
     console.error('Get users error:', error);
@@ -89,7 +107,22 @@ const getUsers = async (req, res) => {
 
 const getStores = async (req, res) => {
   try {
-    const result = await query('SELECT * FROM stores');
+    const { name } = req.query;
+    let sql = `
+      SELECT s.*, COALESCE(AVG(r.rating), 0) as rating 
+      FROM stores s
+      LEFT JOIN ratings r ON s.id = r.store_id
+    `;
+    const params = [];
+
+    if (name) {
+      sql += ' WHERE s.name LIKE ?';
+      params.push(`%${name}%`);
+    }
+
+    sql += ' GROUP BY s.id';
+
+    const result = await query(sql, params);
     res.json(result.rows || []);
   } catch (error) {
     console.error('Get stores error:', error);

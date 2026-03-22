@@ -4,8 +4,25 @@ const getStores = async (req, res) => {
   try {
     console.log('Getting stores for user:', req.user.id);
     
-    // Simple query to get all stores first
-    const storesResult = await query('SELECT * FROM stores');
+    const { name, address } = req.query;
+    let sql = 'SELECT * FROM stores';
+    const params = [];
+    const conditions = [];
+
+    if (name) {
+      conditions.push('name LIKE ?');
+      params.push(`%${name}%`);
+    }
+    if (address) {
+      conditions.push('address LIKE ?');
+      params.push(`%${address}%`);
+    }
+
+    if (conditions.length > 0) {
+      sql += ' WHERE ' + conditions.join(' AND ');
+    }
+    
+    const storesResult = await query(sql, params);
     console.log('Raw stores result:', storesResult);
     
     if (!storesResult.rows || storesResult.rows.length === 0) {
