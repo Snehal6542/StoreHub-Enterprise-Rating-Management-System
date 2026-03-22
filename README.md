@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <div align="center">
 
 #  StoreHub: Enterprise Rating Management System
